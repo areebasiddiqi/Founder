@@ -7,6 +7,11 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'FoundersPitch - Raise Smart. Raise Fast.',
   description: 'No Win, No Fee, AI-Enabled fundraising platform for UK startup founders',
+  icons: {
+    icon: '/arrow logo.png',
+    shortcut: '/arrow logo.png',
+    apple: '/arrow logo.png',
+  },
 }
 
 export default function RootLayout({

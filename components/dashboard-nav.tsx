@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
@@ -151,9 +152,14 @@ export function DashboardNav() {
 
   return (
     <div className="w-64 bg-white shadow-sm">
-      <div className="flex items-center px-6 py-4 border-b">
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 mr-3"></div>
-        <span className="text-xl font-bold text-gray-900">FoundersPitch</span>
+      <div className="flex items-center justify-center px-6 py-4 border-b">
+        <Image 
+          src="/arrow logo.png" 
+          alt="FoundersPitch Logo" 
+          width={100} 
+          height={100} 
+          className="h-11"
+        />
       </div>
 
       {/* Profile Switcher */}

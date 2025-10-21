@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -21,9 +22,14 @@ export function Navigation() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600"></div>
-              <span className="text-xl font-bold text-gray-900">FoundersPitch</span>
+            <Link href="/" className="flex items-center">
+              <Image 
+                src="/arrow logo.png" 
+                alt="FoundersPitch Logo" 
+                width={30} 
+                height={30} 
+                className="h-10"
+              />
             </Link>
           </div>
 

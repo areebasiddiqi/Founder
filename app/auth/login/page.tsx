@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -65,7 +66,13 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto h-12 w-12 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 mb-4"></div>
+          <Image 
+            src="/arrow logo.png" 
+            alt="FoundersPitch Logo" 
+            width={180} 
+            height={60} 
+            className="mx-auto h-15 mb-4"
+          />
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
           <CardDescription>
             Sign in to your FoundersPitch account

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Navigation } from '@/components/navigation'
@@ -169,9 +170,14 @@ export default function HomePage() {
       <footer className="bg-gray-900 text-white py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600"></div>
-              <span className="text-xl font-bold">FoundersPitch</span>
+            <div className="flex items-center justify-center mb-4">
+              <Image 
+                src="/arrow logo.png" 
+                alt="FoundersPitch Logo" 
+                width={30} 
+                height={30} 
+                className="h-12"
+              />
             </div>
             <p className="text-gray-400 mb-4">
               No Win, No Fee, AI-Enabled fundraising for UK startups

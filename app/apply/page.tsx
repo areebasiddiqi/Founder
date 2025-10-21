@@ -218,7 +218,7 @@ export default function ApplyPage() {
             />}
             {currentStep === 1 && <CompanyDetailsStep 
               user={user}
-              onCompanyCreated={(company) => {
+              onCompanyCreated={(company: Company) => {
                 setCompany(company);
                 setCurrentStep(2);
               }}

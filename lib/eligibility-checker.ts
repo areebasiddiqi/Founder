@@ -38,7 +38,7 @@ export class EligibilityChecker {
   checkSEISEligibility(company: CompanyData, round: FundingRoundData): EligibilityResult {
     const checks: EligibilityResult['checks_performed'] = {};
     const reasons: string[] = [];
-    let overallResult: EligibilityResult['result'] = 'eligible';
+    let overallResult: 'eligible' | 'possibly_eligible' | 'not_eligible' = 'eligible';
 
     // 1. Company age check (must be less than 2 years old)
     const incorporationDate = new Date(company.incorporation_date);
@@ -160,7 +160,7 @@ export class EligibilityChecker {
   checkEISEligibility(company: CompanyData, round: FundingRoundData): EligibilityResult {
     const checks: EligibilityResult['checks_performed'] = {};
     const reasons: string[] = [];
-    let overallResult: EligibilityResult['result'] = 'eligible';
+    let overallResult: 'eligible' | 'possibly_eligible' | 'not_eligible' = 'eligible';
 
     // 1. Company age check (must be less than 7 years old, or 10 for knowledge-intensive)
     const incorporationDate = new Date(company.incorporation_date);
@@ -262,7 +262,7 @@ export class EligibilityChecker {
       passed: true,
       notes: 'Company must be independent - manual verification required'
     };
-    if (overallResult === 'eligible') overallResult = 'possibly_eligible';
+    // Note: overallResult is already set to 'possibly_eligible' from previous checks
 
     return {
       result: overallResult,

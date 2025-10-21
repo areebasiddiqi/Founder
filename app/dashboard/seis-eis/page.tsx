@@ -12,19 +12,30 @@ import {
   Clock, 
   AlertTriangle,
   Plus,
-  ExternalLink
+  ExternalLink,
+  UserCheck,
+  ArrowRight
 } from 'lucide-react';
 import Link from 'next/link';
+import AgentAppointment from '@/components/seis-eis/agent-appointment';
 
 interface Company {
   id: string;
   name: string;
   crn: string;
   incorporation_date: string;
+  registered_address?: string;
+  contact_name?: string;
+  contact_email?: string;
   is_seis_candidate: boolean;
   is_eis_candidate: boolean;
   funding_rounds: FundingRound[];
   authorisations: Authorisation[];
+  agent_appointment?: {
+    status: 'pending' | 'sent' | 'signed';
+    signed_at?: string;
+    document_url?: string;
+  };
 }
 
 interface FundingRound {
@@ -46,6 +57,8 @@ export default function SEISEISDashboard() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<any>(null);
+  const [showAgentAppointment, setShowAgentAppointment] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   useEffect(() => {
     checkSubscriptionAndLoadData();
@@ -170,7 +183,18 @@ export default function SEISEISDashboard() {
         </Button>
       </div>
 
-      {companies.length === 0 ? (
+      {showAgentAppointment && selectedCompany ? (
+        <AgentAppointment 
+          company={selectedCompany}
+          onComplete={(appointmentData) => {
+            console.log('Agent appointment completed:', appointmentData);
+            setShowAgentAppointment(false);
+            setSelectedCompany(null);
+            // Refresh companies data
+            loadCompanies();
+          }}
+        />
+      ) : companies.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">
             <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -212,9 +236,64 @@ export default function SEISEISDashboard() {
                 </div>
               </CardHeader>
               <CardContent>
+                {/* Agent Appointment Status */}
+                <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-medium text-sm text-gray-700 mb-2 flex items-center gap-2">
+                    <UserCheck className="w-4 h-4" />
+                    Agent Appointment Status
+                  </h4>
+                  {company.agent_appointment?.status === 'signed' ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-green-700">
+                          Signed on {company.agent_appointment.signed_at ? new Date(company.agent_appointment.signed_at).toLocaleDateString() : 'Unknown'}
+                        </span>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        View Document
+                      </Button>
+                    </div>
+                  ) : company.agent_appointment?.status === 'sent' ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm text-amber-700">Sent for signature - check your email</span>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedCompany(company);
+                          setShowAgentAppointment(true);
+                        }}
+                      >
+                        Resend
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-500" />
+                        <span className="text-sm text-red-700">Agent appointment required before SEIS/EIS application</span>
+                      </div>
+                      <Button 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedCompany(company);
+                          setShowAgentAppointment(true);
+                        }}
+                      >
+                        <ArrowRight className="w-4 h-4 mr-1" />
+                        Sign Now
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
                 {/* Authorisation Status */}
                 <div className="mb-4">
-                  <h4 className="font-medium text-sm text-gray-700 mb-2">Authorisation Status</h4>
+                  <h4 className="font-medium text-sm text-gray-700 mb-2">HMRC Authorisation Status</h4>
                   {company.authorisations.length > 0 ? (
                     <div className="flex items-center gap-2">
                       {company.authorisations[0].is_valid ? (
@@ -232,7 +311,12 @@ export default function SEISEISDashboard() {
                   ) : (
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">Not signed</span>
+                      <span className="text-sm text-gray-600">
+                        {company.agent_appointment?.status === 'signed' 
+                          ? 'Ready for HMRC application' 
+                          : 'Requires agent appointment first'
+                        }
+                      </span>
                     </div>
                   )}
                 </div>

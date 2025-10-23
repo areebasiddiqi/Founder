@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import { Badge } from '@/components/ui/badge'
+import { Target, BarChart3, Settings, FileText, Download, Link } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -741,7 +743,7 @@ For now, your interest has been noted for: ${pitchData?.pitch_title || pitchData
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <span className="mr-2 text-lg">📊</span>
+                    <BarChart3 className="mr-2 w-5 h-5" />
                     Traction & Key Metrics
                   </CardTitle>
                 </CardHeader>
@@ -784,7 +786,7 @@ For now, your interest has been noted for: ${pitchData?.pitch_title || pitchData
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <span className="mr-2 text-lg">🔧</span>
+                    <Settings className="mr-2 w-5 h-5" />
                     Product & Technology
                   </CardTitle>
                 </CardHeader>
@@ -1164,7 +1166,7 @@ For now, your interest has been noted for: ${pitchData?.pitch_title || pitchData
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <span className="mr-2 text-lg">📥</span>
+                  <Download className="mr-2 w-5 h-5" />
                   Documents
                 </CardTitle>
               </CardHeader>
@@ -1172,7 +1174,7 @@ For now, your interest has been noted for: ${pitchData?.pitch_title || pitchData
                 {(pitchData.business_plan_url || pitchData.advance_assurance_applications?.business_plan_url) && (
                   <Button variant="outline" className="w-full" asChild>
                     <a href={pitchData.business_plan_url || pitchData.advance_assurance_applications?.business_plan_url || '#'} target="_blank" rel="noopener noreferrer">
-                      <span className="mr-2">📄</span>
+                      <FileText className="mr-2 w-4 h-4" />
                       Business Plan
                     </a>
                   </Button>
@@ -1180,7 +1182,7 @@ For now, your interest has been noted for: ${pitchData?.pitch_title || pitchData
                 {(pitchData.pitch_deck_url || pitchData.advance_assurance_applications?.pitch_deck_url) && (
                   <Button variant="outline" className="w-full" asChild>
                     <a href={pitchData.pitch_deck_url || pitchData.advance_assurance_applications?.pitch_deck_url || '#'} target="_blank" rel="noopener noreferrer">
-                      <span className="mr-2">📊</span>
+                      <BarChart3 className="mr-2 w-4 h-4" />
                       Pitch Deck
                     </a>
                   </Button>

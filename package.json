@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:deploy": "supabase functions deploy",
+    "webhook:deploy": "supabase functions deploy stripe-webhook --env-file supabase/functions/.env",
+    "webhook:logs": "supabase functions logs stripe-webhook --follow",
+    "webhook:test": "stripe trigger customer.subscription.created"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",

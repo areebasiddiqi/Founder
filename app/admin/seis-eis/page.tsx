@@ -17,12 +17,13 @@ import {
   Download,
   Eye,
   MessageSquare,
-  Calendar
+  Calendar,
+  X
 } from 'lucide-react';
 
 interface Company {
   id: string;
-  name: string;
+  company_name: string;
   crn: string;
   incorporation_date: string;
   contact_name: string;
@@ -78,6 +79,8 @@ export default function AdminSEISEIS() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [user, setUser] = useState<any>(null);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [showCompanyModal, setShowCompanyModal] = useState(false);
 
   useEffect(() => {
     checkAdminAndLoadData();
@@ -215,6 +218,45 @@ export default function AdminSEISEIS() {
     }).format(amount);
   };
 
+  const handleViewCompany = (company: Company) => {
+    setSelectedCompany(company);
+    setShowCompanyModal(true);
+  };
+
+  const handleContactCompany = (company: Company) => {
+    const subject = `SEIS/EIS Application - ${company.company_name}`;
+    const body = `Dear ${company.contact_name},\n\nRegarding your SEIS/EIS application for ${company.company_name} (CRN: ${company.crn}).\n\nBest regards,\nSurgeAI Team`;
+    const mailtoLink = `mailto:${company.contact_email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(mailtoLink, '_blank');
+  };
+
+  const handleViewDocument = async (documentId: string) => {
+    try {
+      // Get the document details from the database
+      const { data: document, error } = await supabase
+        .from('documents')
+        .select('file_url, filename')
+        .eq('id', documentId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching document:', error);
+        alert('Failed to load document');
+        return;
+      }
+
+      if (document?.file_url) {
+        // Open the document in a new tab
+        window.open(document.file_url, '_blank');
+      } else {
+        alert('Document file not found');
+      }
+    } catch (error) {
+      console.error('Error viewing document:', error);
+      alert('Failed to open document');
+    }
+  };
+
   const getUrgentItems = () => {
     const urgent: any[] = [];
     
@@ -224,7 +266,7 @@ export default function AdminSEISEIS() {
         if (!auth.is_valid || new Date(auth.expires_at) < new Date()) {
           urgent.push({
             type: 'expired_auth',
-            company: company.name,
+            company: company.company_name || 'Unknown Company',
             message: 'Authorisation expired or invalid'
           });
         }
@@ -236,7 +278,7 @@ export default function AdminSEISEIS() {
           if (submission.due_followup_at && new Date(submission.due_followup_at) < new Date()) {
             urgent.push({
               type: 'overdue_followup',
-              company: company.name,
+              company: company.company_name || 'Unknown Company',
               message: `Follow-up overdue for ${round.scheme} application`
             });
           }
@@ -248,9 +290,9 @@ export default function AdminSEISEIS() {
   };
 
   const filteredCompanies = companies.filter(company => {
-    const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         company.crn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         company.contact_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (company.company_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (company.crn || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (company.contact_name || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     if (statusFilter === 'all') return matchesSearch;
     
@@ -350,7 +392,7 @@ export default function AdminSEISEIS() {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <Building2 className="w-5 h-5" />
-                    {company.name}
+                    {company.company_name || 'Unknown Company'}
                   </CardTitle>
                   <CardDescription>
                     CRN: {company.crn} • Contact: {company.contact_name} ({company.contact_email})
@@ -360,11 +402,19 @@ export default function AdminSEISEIS() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleViewCompany(company)}
+                  >
                     <Eye className="w-4 h-4 mr-1" />
                     View
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleContactCompany(company)}
+                  >
                     <MessageSquare className="w-4 h-4 mr-1" />
                     Contact
                   </Button>
@@ -449,6 +499,15 @@ export default function AdminSEISEIS() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
+                                    onClick={() => handleViewDocument(doc.id)}
+                                    className="h-6 px-2 text-blue-600 hover:text-blue-800"
+                                  >
+                                    <Eye className="w-3 h-3 mr-1" />
+                                    View
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
                                     onClick={() => updateDocumentVerification(doc.id, !doc.is_verified)}
                                     className="h-6 px-2"
                                   >
@@ -512,6 +571,209 @@ export default function AdminSEISEIS() {
             </p>
           </CardContent>
         </Card>
+      )}
+
+      {/* Company Detail Modal */}
+      {showCompanyModal && selectedCompany && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <Building2 className="w-6 h-6" />
+                    {selectedCompany.company_name}
+                  </h2>
+                  <p className="text-gray-600">Detailed company information and application status</p>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setShowCompanyModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Company Details */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Company Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div>
+                      <span className="font-medium text-gray-700">Company Name:</span>
+                      <p className="text-gray-900">{selectedCompany.company_name}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Registration Number:</span>
+                      <p className="text-gray-900">{selectedCompany.crn}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Incorporation Date:</span>
+                      <p className="text-gray-900">{new Date(selectedCompany.incorporation_date).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Contact Person:</span>
+                      <p className="text-gray-900">{selectedCompany.contact_name}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Contact Email:</span>
+                      <p className="text-gray-900">{selectedCompany.contact_email}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Founder:</span>
+                      <p className="text-gray-900">
+                        {selectedCompany.profiles?.full_name} ({selectedCompany.profiles?.email})
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Authorization Status */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Authorization Status</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {selectedCompany.authorisations.length > 0 ? (
+                      <div className="space-y-3">
+                        {selectedCompany.authorisations.map((auth, index) => (
+                          <div key={auth.id} className="p-3 border rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                              {auth.is_valid ? (
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                              ) : (
+                                <AlertTriangle className="w-4 h-4 text-red-500" />
+                              )}
+                              <span className="font-medium">
+                                {auth.is_valid ? 'Valid' : 'Invalid/Expired'}
+                              </span>
+                            </div>
+                            <div className="text-sm text-gray-600 space-y-1">
+                              <p>Expires: {new Date(auth.expires_at).toLocaleDateString()}</p>
+                              {auth.signed_at && (
+                                <p>Signed: {new Date(auth.signed_at).toLocaleDateString()}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-600">No authorizations found</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Funding Rounds */}
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle>Funding Rounds</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {selectedCompany.funding_rounds.length > 0 ? (
+                    <div className="space-y-4">
+                      {selectedCompany.funding_rounds.map((round) => (
+                        <div key={round.id} className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <Badge variant="outline">{round.scheme}</Badge>
+                              <span className="font-medium">{formatCurrency(round.amount_to_raise)}</span>
+                              <Badge className={getStatusColor(round.status)}>
+                                {round.status.charAt(0).toUpperCase() + round.status.slice(1)}
+                              </Badge>
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              Created: {new Date(round.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+
+                          {/* Documents for this round */}
+                          <div>
+                            <h5 className="font-medium text-sm text-gray-700 mb-2">
+                              Documents ({round.documents.length})
+                            </h5>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {round.documents.map((doc) => (
+                                <div key={doc.id} className="flex items-center justify-between text-sm bg-gray-50 p-2 rounded">
+                                  <div className="flex items-center gap-2">
+                                    <FileText className="w-4 h-4" />
+                                    <span>{doc.document_type.replace('_', ' ')}</span>
+                                    {doc.is_verified ? (
+                                      <CheckCircle className="w-4 h-4 text-green-500" />
+                                    ) : (
+                                      <Clock className="w-4 h-4 text-amber-500" />
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleViewDocument(doc.id)}
+                                      className="h-6 px-2 text-blue-600 hover:text-blue-800"
+                                    >
+                                      <Eye className="w-3 h-3 mr-1" />
+                                      View
+                                    </Button>
+                                    <div className="text-xs text-gray-500">
+                                      {new Date(doc.uploaded_at).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Submissions for this round */}
+                          {round.submissions.length > 0 && (
+                            <div className="mt-3">
+                              <h5 className="font-medium text-sm text-gray-700 mb-2">Submissions</h5>
+                              {round.submissions.map((submission) => (
+                                <div key={submission.id} className="text-sm bg-blue-50 p-2 rounded">
+                                  <div className="flex items-center justify-between">
+                                    <span>HMRC Ref: {submission.hmrc_reference || 'Pending'}</span>
+                                    <Badge className={getStatusColor(submission.status)}>
+                                      {submission.status}
+                                    </Badge>
+                                  </div>
+                                  <div className="text-gray-600 mt-1">
+                                    Submitted: {new Date(submission.submitted_at).toLocaleDateString()}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600">No funding rounds found</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4 mt-6">
+                <Button 
+                  onClick={() => handleContactCompany(selectedCompany)}
+                  className="flex-1"
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Contact Company
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowCompanyModal(false)}
+                  className="flex-1"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

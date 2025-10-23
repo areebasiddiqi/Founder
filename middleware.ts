@@ -6,6 +6,8 @@ export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
   const supabase = createMiddlewareClient({ req, res })
 
+  console.log('Middleware - Request:', req.nextUrl.pathname)
+
   // Refresh session if needed
   const {
     data: { session },
@@ -15,6 +17,12 @@ export async function middleware(req: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  console.log('Middleware - Auth state:', { 
+    path: req.nextUrl.pathname, 
+    session: !!session, 
+    user: !!user 
+  })
 
   // Protected routes that require authentication
   const protectedRoutes = ['/dashboard', '/make-ready']
@@ -30,6 +38,7 @@ export async function middleware(req: NextRequest) {
 
   // Redirect to login if accessing protected route without session or user
   if (isProtectedRoute && (!session || !user)) {
+    console.log('Middleware - Redirecting to login:', req.nextUrl.pathname)
     const redirectUrl = new URL('/auth/login', req.url)
     redirectUrl.searchParams.set('redirect', req.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
@@ -37,19 +46,33 @@ export async function middleware(req: NextRequest) {
 
   // Check admin access
   if (isAdminRoute && session) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single()
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single()
 
-    if (!profile || profile.role !== 'admin') {
+      // If there's a permission error or no profile, redirect to dashboard
+      if (error || !profile || profile.role !== 'admin') {
+        console.log('Admin access denied:', { error, profile })
+        return NextResponse.redirect(new URL('/dashboard', req.url))
+      }
+    } catch (error) {
+      console.error('Error checking admin access:', error)
       return NextResponse.redirect(new URL('/dashboard', req.url))
     }
   }
 
   // Redirect to dashboard if accessing auth pages with active session
   if (session && req.nextUrl.pathname.startsWith('/auth/')) {
+    console.log('Middleware - Redirecting from auth to dashboard')
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
+  // Redirect authenticated users from landing page to dashboard
+  if (session && req.nextUrl.pathname === '/') {
+    console.log('Middleware - Redirecting from home to dashboard')
     return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 
@@ -58,7 +81,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // Temporarily disable middleware for dashboard routes
-    // '/((?!api|_next/static|_next/image|favicon.ico|dashboard).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.svg).*)',
   ],
 }

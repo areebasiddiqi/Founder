@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { InvestorDashboard } from '@/components/investor-dashboard'
-import { supabase } from '@/lib/supabase'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 interface Application {
   id: string
@@ -21,6 +22,8 @@ interface UserProfile {
 }
 
 export default function DashboardPage() {
+  const router = useRouter()
+  const supabase = createClientComponentClient()
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [applications, setApplications] = useState<Application[]>([])
@@ -31,53 +34,64 @@ export default function DashboardPage() {
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        // Get current user
-        const { data: { user } } = await supabase.auth.getUser()
+        // Get current user and check authentication
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        
+        console.log('Dashboard - Auth check:', { user: !!user, userError, userId: user?.id })
+        
+        // If no user, redirect to login
+        if (!user || userError) {
+          console.log('Dashboard - No user found, redirecting to login')
+          setLoading(false)
+          router.push('/auth/login')
+          return
+        }
+        
+        console.log('Dashboard - User authenticated, loading data...')
+
         setUser(user)
 
-        if (user) {
-          // Get user profile
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single()
-          
-          setProfile(profileData)
-          
-          // Check localStorage first for role preference
-          const savedRole = localStorage.getItem(`user_role_${user.id}`)
-          if (savedRole && ['founder', 'investor'].includes(savedRole)) {
-            setUserRole(savedRole)
-          } else {
-            setUserRole(profileData?.active_role || 'founder')
-          }
-
-          // Get user applications
-          const { data: applicationsData } = await supabase
-            .from('advance_assurance_applications')
-            .select('*')
-            .eq('founder_id', user.id)
-            .order('created_at', { ascending: false })
-          
-          setApplications(applicationsData || [])
-
-          // Get investor interests
-          const { data: interestsData } = await supabase
-            .from('investor_interests')
-            .select(`
-              *,
-              pitch_pages!inner (
-                id,
-                pitch_title,
-                founder_id
-              )
-            `)
-            .eq('pitch_pages.founder_id', user.id)
-            .order('created_at', { ascending: false })
-          
-          setInvestorInterests(interestsData || [])
+        // Get user profile
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+        
+        setProfile(profileData)
+        
+        // Check localStorage first for role preference
+        const savedRole = localStorage.getItem(`user_role_${user.id}`)
+        if (savedRole && ['founder', 'investor'].includes(savedRole)) {
+          setUserRole(savedRole)
+        } else {
+          setUserRole(profileData?.active_role || 'founder')
         }
+
+        // Get user applications
+        const { data: applicationsData } = await supabase
+          .from('advance_assurance_applications')
+          .select('*')
+          .eq('founder_id', user.id)
+          .order('created_at', { ascending: false })
+        
+        setApplications(applicationsData || [])
+
+        // Get investor interests
+        const { data: interestsData } = await supabase
+          .from('investor_interests')
+          .select(`
+            *,
+            pitch_pages!inner (
+              id,
+              pitch_title,
+              founder_id
+            )
+          `)
+          .eq('pitch_pages.founder_id', user.id)
+          .order('created_at', { ascending: false })
+        
+        setInvestorInterests(interestsData || [])
       } catch (error) {
         console.error('Error loading dashboard data:', error)
       } finally {
@@ -86,6 +100,20 @@ export default function DashboardPage() {
     }
 
     loadDashboardData()
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Dashboard - Auth state change:', { event, session: !!session })
+        if (event === 'SIGNED_OUT') {
+          console.log('Dashboard - User signed out, redirecting to login')
+          router.push('/auth/login')
+        }
+        // Don't reload data on SIGNED_IN to prevent conflicts
+      }
+    )
+
+    return () => subscription.unsubscribe()
   }, [])
 
   if (loading) {

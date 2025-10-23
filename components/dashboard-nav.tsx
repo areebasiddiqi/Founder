@@ -6,28 +6,44 @@ import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { supabase } from '@/lib/supabase'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { 
+  BarChart3, 
+  MessageCircle, 
+  FileText, 
+  Rocket, 
+  DollarSign, 
+  Search, 
+  Star, 
+  CreditCard, 
+  Settings, 
+  LogOut, 
+  User, 
+  Crown,
+  Shield 
+} from 'lucide-react'
 
 const getNavigation = (userRole: string) => {
   const baseNav = [
-    { name: 'Dashboard', href: '/dashboard', icon: '📊', roles: ['founder', 'investor'] },
-    { name: 'Messages', href: '/dashboard/messages', icon: '💬', roles: ['founder', 'investor'] },
+    { name: 'Dashboard', href: '/dashboard', icon: BarChart3, roles: ['founder', 'investor'] },
+    { name: 'Messages', href: '/dashboard/messages', icon: MessageCircle, roles: ['founder', 'investor'] },
   ]
 
   const founderNav = [
-    { name: 'Applications', href: '/dashboard/applications', icon: '📋', roles: ['founder'] },
-    { name: 'Pitch Pages', href: '/dashboard/pitch-pages', icon: '🚀', roles: ['founder'] },
-    { name: 'Investor Interests', href: '/dashboard/investor-interests', icon: '💰', roles: ['founder'] },
+    { name: 'Applications', href: '/dashboard/applications', icon: FileText, roles: ['founder'] },
+    { name: 'Pitch Pages', href: '/dashboard/pitch-pages', icon: Rocket, roles: ['founder'] },
+    { name: 'SEIS/EIS', href: '/apply', icon: Shield, roles: ['founder'] },
+    { name: 'Investor Interests', href: '/dashboard/investor-interests', icon: DollarSign, roles: ['founder'] },
   ]
 
   const investorNav = [
-    { name: 'Browse Pitches', href: '/browse', icon: '🔍', roles: ['investor'] },
-    { name: 'My Interests', href: '/dashboard/my-interests', icon: '⭐', roles: ['investor'] },
+    { name: 'Browse Pitches', href: '/browse', icon: Search, roles: ['investor'] },
+    { name: 'My Interests', href: '/dashboard/my-interests', icon: Star, roles: ['investor'] },
   ]
 
   const commonNav = [
-    { name: 'Billing', href: '/dashboard/billing', icon: '💳', roles: ['founder', 'investor'] },
-    { name: 'Settings', href: '/dashboard/settings', icon: '⚙️', roles: ['founder', 'investor'] },
+    { name: 'Billing', href: '/dashboard/billing', icon: CreditCard, roles: ['founder', 'investor'] },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['founder', 'investor'] },
   ]
 
   return [
@@ -39,6 +55,7 @@ const getNavigation = (userRole: string) => {
 
 export function DashboardNav() {
   const pathname = usePathname()
+  const supabase = createClientComponentClient()
   const [userRole, setUserRole] = useState('founder')
   const [availableRoles, setAvailableRoles] = useState<string[]>(['founder'])
   const [switching, setSwitching] = useState(false)
@@ -134,10 +151,10 @@ export function DashboardNav() {
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'founder': return '🚀'
-      case 'investor': return '💰'
-      case 'admin': return '👑'
-      default: return '👤'
+      case 'founder': return Rocket
+      case 'investor': return DollarSign
+      case 'admin': return Crown
+      default: return User
     }
   }
 
@@ -169,7 +186,10 @@ export function DashboardNav() {
         </div>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <span className="text-lg">{getRoleIcon(userRole)}</span>
+            {(() => {
+              const IconComponent = getRoleIcon(userRole)
+              return <IconComponent className="w-5 h-5" />
+            })()}
             <span className="font-medium text-gray-900">{getRoleLabel(userRole)}</span>
           </div>
         </div>
@@ -187,7 +207,10 @@ export function DashboardNav() {
                   disabled={switching || role === userRole}
                   className="flex-1 text-xs"
                 >
-                  <span className="mr-1">{getRoleIcon(role)}</span>
+                  {(() => {
+                    const IconComponent = getRoleIcon(role)
+                    return <IconComponent className="mr-1 w-4 h-4" />
+                  })()}
                   {getRoleLabel(role)}
                 </Button>
               ))}
@@ -202,7 +225,7 @@ export function DashboardNav() {
               disabled={switching}
               className="w-full text-xs"
             >
-              <span className="mr-1">💰</span>
+              <DollarSign className="mr-1 w-4 h-4" />
               Add Investor Profile
             </Button>
           )}
@@ -222,7 +245,10 @@ export function DashboardNav() {
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               )}
             >
-              <span className="mr-3">{item.icon}</span>
+              {(() => {
+                const IconComponent = item.icon
+                return <IconComponent className="mr-3 w-5 h-5" />
+              })()}
               {item.name}
             </Link>
           ))}
@@ -230,8 +256,15 @@ export function DashboardNav() {
       </nav>
 
       <div className="absolute bottom-0 w-64 p-3 border-t">
-        <Button variant="ghost" className="w-full justify-start text-gray-600">
-          <span className="mr-3">🚪</span>
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start text-gray-600"
+          onClick={async () => {
+            await supabase.auth.signOut()
+            window.location.href = '/'
+          }}
+        >
+          <LogOut className="mr-3 w-5 h-5" />
           Sign Out
         </Button>
       </div>

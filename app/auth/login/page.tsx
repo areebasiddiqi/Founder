@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { supabase } from '@/lib/supabase'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -15,11 +15,14 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const supabase = createClientComponentClient()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    console.log('Login - Attempting sign in with:', { email })
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -27,9 +30,13 @@ export default function LoginPage() {
         password,
       })
 
+      console.log('Login - Sign in result:', { user: !!data.user, error })
+
       if (error) {
+        console.error('Login - Sign in error:', error)
         setError(error.message)
       } else if (data.user) {
+        console.log('Login - User signed in successfully:', data.user.id)
         // Check if user profile exists
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -53,6 +60,7 @@ export default function LoginPage() {
           }
         }
 
+        console.log('Login - Redirecting to dashboard')
         router.push('/dashboard')
       }
     } catch (err) {

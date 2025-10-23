@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { User } from '@supabase/supabase-js'
 
 interface AuthWrapperProps {
@@ -13,15 +13,18 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const supabase = createClientComponentClient()
 
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { session }, error } = await supabase.auth.getSession()
+      console.log('AuthWrapper - Initial session check:', { session: !!session, error })
       setUser(session?.user ?? null)
       setLoading(false)
 
       if (!session) {
+        console.log('AuthWrapper - No session, redirecting to login')
         router.push('/auth/login')
       }
     }
@@ -31,9 +34,11 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('AuthWrapper - Auth state change:', { event, session: !!session })
         setUser(session?.user ?? null)
         
-        if (event === 'SIGNED_OUT' || !session) {
+        if (event === 'SIGNED_OUT') {
+          console.log('AuthWrapper - User signed out, redirecting to login')
           router.push('/auth/login')
         }
       }

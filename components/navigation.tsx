@@ -1,10 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useState, useEffect } from 'react'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { User, LogOut } from 'lucide-react'
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -16,6 +19,39 @@ const navigation = [
 
 export function Navigation() {
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClientComponentClient()
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setLoading(false)
+    }
+
+    getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null)
+        setLoading(false)
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [supabase.auth])
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
+  // Filter navigation based on auth status
+  const filteredNavigation = user 
+    ? navigation.filter(item => item.name !== 'Home') // Hide Home for authenticated users
+    : navigation.filter(item => !['Dashboard', 'Billing'].includes(item.name)) // Hide protected routes for unauthenticated users
 
   return (
     <header className="border-b bg-white">
@@ -34,7 +70,7 @@ export function Navigation() {
           </div>
 
           <nav className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
+            {filteredNavigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
@@ -51,12 +87,28 @@ export function Navigation() {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" asChild>
-              <Link href="/auth/login">Sign In</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/auth/register">Get Started</Link>
-            </Button>
+            {loading ? (
+              <div className="w-20 h-8 bg-gray-200 animate-pulse rounded"></div>
+            ) : user ? (
+              <>
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  {user.email?.split('@')[0]}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href="/auth/login">Sign In</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/auth/register">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

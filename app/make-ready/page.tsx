@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -386,7 +388,7 @@ export default function MakeReadyPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <span className="mr-2">📄</span>
+                <FileText className="mr-2 w-5 h-5" />
                 Investment Details
               </CardTitle>
               <CardDescription>

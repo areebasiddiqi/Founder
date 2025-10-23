@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { Badge } from '@/components/ui/badge'
+import { Rocket, FileText, Eye, Clipboard, Target, Edit } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
@@ -104,7 +106,7 @@ export default function PitchPagesPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-4">
-                        <span className="text-2xl">{pitch.is_published ? '🚀' : '📝'}</span>
+                        {pitch.is_published ? <Rocket className="w-6 h-6 text-green-500" /> : <FileText className="w-6 h-6 text-gray-400" />}
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900">
                             {pitch.pitch_title}
@@ -145,7 +147,7 @@ export default function PitchPagesPage() {
                     <div className="flex items-center space-x-2">
                       <Button size="sm" variant="outline" asChild>
                         <Link href={`/create-pitch?edit=${pitch.id}`}>
-                          <span className="mr-2">✏️</span>
+                          <Edit className="mr-2 w-4 h-4" />
                           Edit
                         </Link>
                       </Button>
@@ -153,7 +155,7 @@ export default function PitchPagesPage() {
                         <>
                           <Button size="sm" variant="outline" asChild>
                             <Link href={`/pitch/${pitch.id}`} target="_blank">
-                              <span className="mr-2">👁️</span>
+                              <Eye className="mr-2 w-4 h-4" />
                               View Live
                             </Link>
                           </Button>
@@ -162,7 +164,7 @@ export default function PitchPagesPage() {
                             navigator.clipboard.writeText(pitchUrl)
                             alert('Pitch page URL copied to clipboard!')
                           }}>
-                            <span className="mr-2">📋</span>
+                            <Clipboard className="mr-2 w-4 h-4" />
                             Copy Link
                           </Button>
                         </>
@@ -187,7 +189,7 @@ export default function PitchPagesPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-4">
-                        <span className="text-2xl">🎯</span>
+                        <Target className="w-6 h-6 text-blue-500" />
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900">
                             {application.company_name}
@@ -220,13 +222,13 @@ export default function PitchPagesPage() {
                     <div className="flex items-center space-x-2">
                       <Button size="sm" asChild>
                         <Link href={`/create-pitch?app=${application.id}`}>
-                          <span className="mr-2">🚀</span>
+                          <Rocket className="mr-2 w-4 h-4" />
                           Create Pitch Page
                         </Link>
                       </Button>
                       <Button size="sm" variant="outline" asChild>
                         <Link href={`/pitch/${application.id}`} target="_blank">
-                          <span className="mr-2">👁️</span>
+                          <Eye className="mr-2 w-4 h-4" />
                           Preview Basic
                         </Link>
                       </Button>

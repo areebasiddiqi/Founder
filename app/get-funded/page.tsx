@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { FileText, BarChart3, CheckCircle } from 'lucide-react'
 import { Navigation } from '@/components/navigation'
 
 export default function GetFundedPage() {
@@ -25,7 +26,7 @@ export default function GetFundedPage() {
           <Card>
             <CardHeader className="text-center">
               <div className="mx-auto h-16 w-16 rounded-full bg-purple-100 flex items-center justify-center mb-4">
-                <span className="text-3xl">📄</span>
+                <FileText className="w-8 h-8 text-purple-600" />
               </div>
               <CardTitle>1. Get Approved</CardTitle>
               <CardDescription>
@@ -37,7 +38,7 @@ export default function GetFundedPage() {
           <Card>
             <CardHeader className="text-center">
               <div className="mx-auto h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                <span className="text-3xl">📊</span>
+                <BarChart3 className="w-8 h-8 text-blue-600" />
               </div>
               <CardTitle>2. Create Pitch Page</CardTitle>
               <CardDescription>
@@ -107,19 +108,19 @@ export default function GetFundedPage() {
             <CardContent>
               <ul className="space-y-3">
                 <li className="flex items-center">
-                  <span className="mr-3">✅</span>
+                  <CheckCircle className="mr-3 w-5 h-5 text-green-500" />
                   <span className="text-gray-700">Unique secure URLs for each pitch</span>
                 </li>
                 <li className="flex items-center">
-                  <span className="mr-3">✅</span>
+                  <CheckCircle className="mr-3 w-5 h-5 text-green-500" />
                   <span className="text-gray-700">Investor verification required</span>
                 </li>
                 <li className="flex items-center">
-                  <span className="mr-3">✅</span>
+                  <CheckCircle className="mr-3 w-5 h-5 text-green-500" />
                   <span className="text-gray-700">Professional design and layout</span>
                 </li>
                 <li className="flex items-center">
-                  <span className="mr-3">✅</span>
+                  <CheckCircle className="mr-3 w-5 h-5 text-green-500" />
                   <span className="text-gray-700">Mobile-optimized viewing</span>
                 </li>
               </ul>
@@ -136,19 +137,19 @@ export default function GetFundedPage() {
             <CardContent>
               <ul className="space-y-3">
                 <li className="flex items-center">
-                  <span className="mr-3">✅</span>
+                  <CheckCircle className="mr-3 w-5 h-5 text-green-500" />
                   <span className="text-gray-700">FCA-compliant investor verification</span>
                 </li>
                 <li className="flex items-center">
-                  <span className="mr-3">✅</span>
+                  <CheckCircle className="mr-3 w-5 h-5 text-green-500" />
                   <span className="text-gray-700">GDPR-compliant data handling</span>
                 </li>
                 <li className="flex items-center">
-                  <span className="mr-3">✅</span>
+                  <CheckCircle className="mr-3 w-5 h-5 text-green-500" />
                   <span className="text-gray-700">Secure document storage</span>
                 </li>
                 <li className="flex items-center">
-                  <span className="mr-3">✅</span>
+                  <CheckCircle className="mr-3 w-5 h-5 text-green-500" />
                   <span className="text-gray-700">Audit trail for compliance</span>
                 </li>
               </ul>

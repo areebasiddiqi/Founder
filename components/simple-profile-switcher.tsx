@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Rocket, DollarSign, Crown, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
 
@@ -116,10 +118,10 @@ export function SimpleProfileSwitcher() {
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'founder': return '🚀'
-      case 'investor': return '💰'
-      case 'admin': return '👑'
-      default: return '👤'
+      case 'founder': return Rocket
+      case 'investor': return DollarSign
+      case 'admin': return Crown
+      default: return User
     }
   }
 
@@ -142,7 +144,10 @@ export function SimpleProfileSwitcher() {
         disabled={switching}
         onClick={() => setShowDropdown(!showDropdown)}
       >
-        <span>{getRoleIcon(currentRole)}</span>
+        {(() => {
+          const IconComponent = getRoleIcon(currentRole)
+          return <IconComponent className="w-4 h-4" />
+        })()}
         <span>{getRoleLabel(currentRole)}</span>
         <span className="ml-1">▼</span>
       </Button>
@@ -163,7 +168,10 @@ export function SimpleProfileSwitcher() {
                 }`}
                 disabled={switching || role === currentRole}
               >
-                <span>{getRoleIcon(role)}</span>
+                {(() => {
+                  const IconComponent = getRoleIcon(role)
+                  return <IconComponent className="w-4 h-4" />
+                })()}
                 <span>{getRoleLabel(role)}</span>
                 {role === currentRole && <span className="ml-auto">✓</span>}
               </button>
@@ -177,7 +185,7 @@ export function SimpleProfileSwitcher() {
                   disabled={switching}
                   className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 flex items-center space-x-2"
                 >
-                  <span>💰</span>
+                  <DollarSign className="w-4 h-4" />
                   <span>Add Investor Profile</span>
                 </button>
               </>

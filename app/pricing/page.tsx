@@ -26,20 +26,38 @@ export default function PricingPage() {
 
   useEffect(() => {
     checkUserAndSubscription();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Pricing page - Auth state change:', { event, session });
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          // Reload subscription data when user logs in
+          checkUserAndSubscription();
+        } else {
+          setSubscription(null);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const checkUserAndSubscription = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      console.log('Pricing page - User check:', { user, userError });
       setUser(user);
 
       if (user) {
-        const { data: sub } = await supabase
+        const { data: sub, error: subError } = await supabase
           .from('subscriptions')
           .select('*')
           .eq('user_id', user.id)
           .single();
 
+        console.log('Pricing page - Subscription check:', { sub, subError });
         setSubscription(sub);
       }
     } catch (error) {
@@ -51,6 +69,7 @@ export default function PricingPage() {
 
   const handleSubscribe = async (planType: string, priceId: string) => {
     if (!user) {
+      alert('Please log in to upgrade your subscription');
       router.push('/auth/login?redirect=/pricing');
       return;
     }

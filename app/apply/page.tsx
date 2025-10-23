@@ -7,6 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CheckCircle, Circle, AlertCircle, Loader2 } from 'lucide-react';
+import AuthorisationStep from '@/components/seis-eis/AuthorisationStep';
+import EligibilityStep from '@/components/seis-eis/EligibilityStep';
+import DocumentsStep from '@/components/seis-eis/DocumentsStep';
+import ReviewStep from '@/components/seis-eis/ReviewStep';
 
 interface Step {
   id: string;
@@ -18,7 +22,7 @@ interface Step {
 
 interface Company {
   id: string;
-  name: string;
+  company_name: string;
   crn: string;
   incorporation_date: string;
   registered_address: string;
@@ -430,71 +434,3 @@ function CompanyDetailsStep({ user, onCompanyCreated }: any) {
   );
 }
 
-function AuthorisationStep({ company, onContinue }: any) {
-  return (
-    <div className="text-center py-8">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Authorisation Letter</h3>
-      <p className="text-gray-600 mb-6">
-        You need to sign an authorisation letter allowing us to act as your agent with HMRC.
-      </p>
-      <div className="bg-amber-50 p-4 rounded-lg mb-6">
-        <p className="text-sm text-amber-800">
-          <strong>Note:</strong> E-signature integration will be implemented in the next phase. 
-          For now, please contact support to complete this step.
-        </p>
-      </div>
-      <Button onClick={onContinue}>Continue (Skip for Demo)</Button>
-    </div>
-  );
-}
-
-function EligibilityStep({ company, onContinue }: any) {
-  return (
-    <div className="text-center py-8">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Eligibility Check</h3>
-      <p className="text-gray-600 mb-6">
-        We'll run a comprehensive eligibility check for SEIS/EIS schemes.
-      </p>
-      <div className="bg-blue-50 p-4 rounded-lg mb-6">
-        <p className="text-sm text-blue-800">
-          Detailed eligibility checking will be implemented in the next phase.
-        </p>
-      </div>
-      <Button onClick={onContinue}>Continue (Skip for Demo)</Button>
-    </div>
-  );
-}
-
-function DocumentsStep({ company, onContinue }: any) {
-  return (
-    <div className="text-center py-8">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Documents</h3>
-      <p className="text-gray-600 mb-6">
-        Upload all required documents for your SEIS/EIS application.
-      </p>
-      <div className="bg-green-50 p-4 rounded-lg mb-6">
-        <p className="text-sm text-green-800">
-          Document upload and validation will be implemented in the next phase.
-        </p>
-      </div>
-      <Button onClick={onContinue}>Continue (Skip for Demo)</Button>
-    </div>
-  );
-}
-
-function ReviewStep({ company, onSubmit }: any) {
-  return (
-    <div className="text-center py-8">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Review & Submit</h3>
-      <p className="text-gray-600 mb-6">
-        Review your application and submit to HMRC.
-      </p>
-      <div className="bg-purple-50 p-4 rounded-lg mb-6">
-        <p className="text-sm text-purple-800">
-          Final review and submission will be implemented in the next phase.
-        </p>
-      </div>
-      <Button onClick={onSubmit}>Submit Application (Demo)</Button>
-    </div>
-  );
-}

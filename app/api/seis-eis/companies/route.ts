@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
+// Use Node.js runtime to avoid Edge Runtime compatibility issues with Supabase realtime
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = createRouteHandlerClient({ cookies });

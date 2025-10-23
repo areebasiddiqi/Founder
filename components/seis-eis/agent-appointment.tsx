@@ -9,7 +9,7 @@ import { FileText, Download, Send, CheckCircle } from 'lucide-react';
 
 interface Company {
   id: string;
-  name: string;
+  company_name: string;
   crn: string;
   incorporation_date: string;
   registered_address?: string;
@@ -29,7 +29,7 @@ export default function AgentAppointment({ company, onComplete }: AgentAppointme
     directorEmail: company?.contact_email || '',
     directorTitle: 'Director',
     startDate: new Date().toISOString().split('T')[0],
-    companyName: company?.name || '',
+    companyName: company?.company_name || '',
     companyNumber: company?.crn || '',
     registeredAddress: company?.registered_address || ''
   });

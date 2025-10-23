@@ -187,7 +187,7 @@ export default function DocumentsStep({ company, onContinue }: DocumentsStepProp
       {/* Document Upload Component */}
       <DocumentUpload
         companyId={company.id}
-        roundId={roundId}
+        roundId={roundId || undefined}
         documents={documents}
         onDocumentUploaded={handleDocumentUploaded}
         onDocumentDeleted={handleDocumentDeleted}

@@ -21,7 +21,7 @@ import AgentAppointment from '@/components/seis-eis/agent-appointment';
 
 interface Company {
   id: string;
-  name: string;
+  company_name: string;
   crn: string;
   incorporation_date: string;
   registered_address?: string;
@@ -219,7 +219,7 @@ export default function SEISEISDashboard() {
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <Building2 className="w-5 h-5" />
-                      {company.name}
+                      {company.company_name}
                     </CardTitle>
                     <CardDescription>
                       CRN: {company.crn} • Incorporated: {new Date(company.incorporation_date).toLocaleDateString()}

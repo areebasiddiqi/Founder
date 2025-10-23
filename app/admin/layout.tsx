@@ -4,12 +4,14 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { BarChart3, FileText, Users, Settings, Shield, LogOut } from 'lucide-react'
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: '📊' },
-  { name: 'Applications', href: '/admin/applications', icon: '📄' },
-  { name: 'Users', href: '/admin/users', icon: '👥' },
-  { name: 'Settings', href: '/admin/settings', icon: '⚙️' },
+  { name: 'Dashboard', href: '/admin', icon: BarChart3 },
+  { name: 'Applications', href: '/admin/applications', icon: FileText },
+  { name: 'SEIS/EIS', href: '/admin/seis-eis', icon: Shield },
+  { name: 'Users', href: '/admin/users', icon: Users },
+  { name: 'Settings', href: '/admin/settings', icon: Settings },
 ]
 
 export default function AdminLayout({
@@ -24,7 +26,7 @@ export default function AdminLayout({
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-sm">
         <div className="flex items-center px-6 py-4 border-b">
-          <span className="text-2xl mr-3">🛡️</span>
+          <Shield className="w-6 h-6 mr-3 text-red-600" />
           <span className="text-xl font-bold text-gray-900">Admin Panel</span>
         </div>
         
@@ -41,7 +43,10 @@ export default function AdminLayout({
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 )}
               >
-                <span className="mr-3 text-lg">{item.icon}</span>
+                {(() => {
+                  const IconComponent = item.icon
+                  return <IconComponent className="mr-3 w-5 h-5" />
+                })()}
                 {item.name}
               </Link>
             ))}
@@ -50,7 +55,7 @@ export default function AdminLayout({
 
         <div className="absolute bottom-0 w-64 p-3 border-t">
           <Button variant="ghost" className="w-full justify-start text-gray-600">
-            <span className="mr-3 text-lg">🚪</span>
+            <LogOut className="mr-3 w-5 h-5" />
             Sign Out
           </Button>
         </div>
